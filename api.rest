@@ -1,0 +1,15 @@
+@URL = http://localhost:5000
+
+### User
+###
+###
+### User signup
+POST http://localhost:5000/user/signup HTTP/1.1
+content-type: application/json
+
+{
+    "email": "test",
+    "password": "test"
+}
+###
+GET  http://localhost:5000
