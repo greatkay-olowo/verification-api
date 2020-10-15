@@ -30,10 +30,14 @@ mongoose
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// routes
-const UserRouter = require("./routes/user");
+// auth middleware
+const authentication = require("./utils/auth");
+app.use(authentication);
 
-// middle wears
+// routes
+const UserRouter = require("./routes/user.route");
+
+// middleware
 app.use("/user", UserRouter);
 
 app.get("/", (req, res) => {

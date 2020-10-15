@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
+const auth = require("../utils/auth");
 
 const saltRounds = 10;
 
 //signup
-router.post("/signup", (req, res) => {
+router.post("/signup", auth, (req, res) => {
   let { email, password } = req.body;
   email = email.toLowerCase();
 
@@ -124,7 +125,7 @@ router.post("/changepassword/:id", (req, res) => {
         .then(() =>
           res
             .status(202)
-            .json({ status: "success", message: "User update successfull" })
+            .json({ status: "success", message: "User update successfull" }),
         )
         .catch((err) => {
           console.error({ err });

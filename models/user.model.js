@@ -4,15 +4,49 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
-    email: {
+    key: {
+      type: String,
+      required: true,
+    },
+    companyName: {
       type: String,
       required: true,
       trim: true,
     },
-    password: {
+    regNo: {
       type: String,
       required: true,
+      trim: true,
     },
+    admin: {
+      email: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      password: {
+        type: String,
+        required: true,
+      },
+    },
+    users: [
+      {
+        email: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        password: {
+          type: String,
+          required: true,
+        },
+        roles: {
+          type: Array,
+          required: true,
+          trim: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,
