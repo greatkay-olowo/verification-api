@@ -30,16 +30,15 @@ mongoose
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-// auth middleware
-const authentication = require("./utils/auth");
-app.use(authentication);
-
 // routes
 const UserRouter = require("./routes/user.route");
+const address_verification_router = require("./routes/address_verification.route");
 
 // middleware
-app.use("/user", UserRouter);
+app.use("/api/v1/user", UserRouter);
+app.use("/api/v1/verification/address", address_verification_router);
 
+// testing
 app.get("/", (req, res) => {
   res.send("Welcome to this api.");
 });

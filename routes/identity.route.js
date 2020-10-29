@@ -1,34 +1,44 @@
 const express = require("express");
 const router = express.Router();
+const cryptojs = require("crypto-js");
 
 const identity = require("../models/identity.model");
 
-const BVN = require("../helper/BVN");
-const NIM = require("../helper/NIM");
+const carbon = require("../helper/carbon");
 
 //get an identity report
 router.get("/identity/:orderID", (req, res) => {
-  const { BVN, NIM, firstName, lastName, DOB } = req.body;
+  const key = req.headers.authorization;
 
-  if (
-    BVN === undefined &&
-    NIM === undefined &&
-    (firstName === undefined || lastName === undefined || DOB === undefined)
-  ) {
-    res.status(400).json({ status: "failed", data: "" });
-  }
+  // type can be bvn, driverlicence, passport, voterid, nationalid, nimcslip, cac or tin
+  // If you are verifying bvn, tin or cac then only the identification_number is required.
 
-  let data;
+  const {
+    identification_type,
+    identification_number,
+    identification_name,
+    identification_dob,
+    user_id,
+  } = req.body;
 
-  if (BVN !== indefined) {
-    data = BVN(BVN, firstName, lastName, DOB);
-  }
+  const requestObject = {
+    identification_type,
+    identification_number,
+    identification_name,
+    identification_dob,
+  };
+  // Sample Payload to encrypt
+  //    {
+  //     "identification_type": "type",
+  //     "identification_number": "A12345678",
+  //     "identification_name": "Lekan David",
+  //     "identification_dob": "1960-09-01"
+  // }
 
-  if (NIM !== indefined) {
-    data = NIM(BVN, firstName, lastName, DOB);
-  }
+  const data = carbon(requestObject, "https://carbonivs.co/api/verify");
+  const res = cryptojs.AES.decrypt(data, key);
 
-  res.status(202).json({ status: "successful", data });
+  res.status().json({ res });
 });
 
 module.exports = router;

@@ -1,49 +1,19 @@
 const mongoose = require("mongoose");
+const nanoid = require("nanoid");
 
 const Schema = mongoose.Schema;
 
-const BVNVerificationSchema = new Schema(
+const identity_schema = new Schema(
   {
-    userID: {
-      type: String,
-      required: true,
-    },
-
-    orderID: {
-      type: String,
-      required: true,
-    },
-
-    profileID: {
-      type: String,
-      required: true,
-    },
-
-    status: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    identityData: {
-      type: Object,
-      required: true,
-    },
-
-    dateCompleted: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    _id: { type: String, default: () => nanoid(10) },
+    user_id: { type: String, required: true },
+    status: { type: String, required: true },
+    identity_data: { type: Array, required: true },
+    date_completed: { type: String, required: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true },
 );
 
-const BVNVerificationSchema = mongoose.model(
-  "BVNVerificationSchema",
-  BVNVerificationSchema
-);
+const Identity = mongoose.model("identity_schema", identity_schema);
 
-module.exports = BVNVerificationSchema;
+module.exports = Identity;

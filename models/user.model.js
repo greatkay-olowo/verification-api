@@ -1,56 +1,25 @@
 const mongoose = require("mongoose");
+const nanoid = require("nanoid");
 
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
-    key: {
-      type: String,
-      required: true,
-    },
-    companyName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    regNo: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    admin: {
-      email: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      password: {
-        type: String,
-        required: true,
-      },
-    },
-    users: [
-      {
-        email: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        password: {
-          type: String,
-          required: true,
-        },
-        roles: {
-          type: Array,
-          required: true,
-          trim: true,
-        },
-      },
-    ],
+    _id: { type: String, default: () => nanoid(10) },
+    key: { type: String, required: true },
+    companyName: { type: String, required: true, trim: true },
+    regNo: { type: String, required: true, trim: true },
+    email: { type: String, required: true, trim: true },
+    tel: { type: String, required: true, trim: true },
+    address: { type: String, required: true, trim: true },
+    password: { type: String, required: true },
+    type: { type: String, required: true },
+    identity_price: { type: String, required: true },
+    address_price: { type: String, required: true },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const User = mongoose.model("User", userSchema);
