@@ -14,6 +14,7 @@ const userSchema = new Schema(
     address: { type: String, required: true, trim: true },
     password: { type: String, required: true },
     type: { type: String, required: true },
+    credit_check_price: { type: Number, required: true },
     identity_price: { type: Number, required: true },
     address_price: { type: Number, required: true },
   },

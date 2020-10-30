@@ -3,7 +3,7 @@ const router = express.Router();
 const { body } = require("express-validator");
 
 const auth = require("../utils/customer_auth");
-const payment = require("../utils/payment");
+const payment = require("../utils/check_wallet");
 
 const address = require("../controller/business_verification.controller");
 
@@ -22,7 +22,7 @@ router.post(
     body("inform_about_visit").isString().not().isEmpty().bail(),
   ],
   auth,
-  payment,
+  payment.check_wallet_balance_for_address,
   address.request_new_add_ver,
 );
 

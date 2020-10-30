@@ -13,8 +13,8 @@ const analytics_schema = new Schema(
     number_of_identity_verification_completed: { type: Number, required: true },
     number_of_address_verification_ordered: { type: Number, required: true },
     number_of_address_verification_completed: { type: Number, required: true },
-    identity_verification_price: { type: Number, required: true },
-    address_verification_price: { type: Number, required: true },
+    number_of_identity_completed: { type: Number, required: true },
+    number_of_credit_check_completed: { type: Number, required: true },
     //wallet: wallet balance
     wallet: { type: Number, required: true },
   },
