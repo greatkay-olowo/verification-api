@@ -10,6 +10,8 @@ const Analytics = require("../models/analytics.model");
 const agent_controller = require("../controller/agent.controller");
 const auth = require("../utils/others_auth");
 
+const image_upload = require("../utils/image_upload");
+
 const saltRounds = 10;
 
 //create agent account
@@ -63,12 +65,10 @@ router.put(
     body("note").isString().trim().escape(),
     body("long").isString().trim().escape(),
     body("lang").isString().trim().escape(),
-    // body("picture_1").isString().trim().escape(),
-    // body("picture_2").isString().trim().escape(),
-    // body("picture_3").isString().trim().escape(),
     body("completed_by").isString().trim().escape(),
   ],
   auth,
+  image_upload.image_validation_and_upload,
   agent_controller.compelete_a_verification,
 );
 

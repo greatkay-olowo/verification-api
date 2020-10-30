@@ -9,7 +9,7 @@ const identity_schema = new Schema(
     user_id: { type: String, required: true },
     status: { type: String, required: true },
     identity_data: { type: Array, required: true },
-    date_completed: { type: String, required: true },
+    date_completed: { type: Date, required: true },
   },
   { timestamps: true },
 );

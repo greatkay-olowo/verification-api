@@ -3,7 +3,7 @@ const axios = require("axios");
 const moment = require("moment");
 const cryptojs = require("crypto-js");
 
-const baseUrl = `https://optimus-staging.getcarbon.co`;
+const baseUrl = `https://carbonivs.co`;
 const merchantId = "YOUR_MERCHANT_ID";
 const apiKey = "YOUR_API_KEY";
 
@@ -46,12 +46,12 @@ const carbon = async (requestObject, uri) => {
     Authorization: hMACAuth,
   };
 
-  const transferUrl = `${baseUrl}${uri}`;
+  const transferUrl = `${baseUrl}/api/verify`;
   const data = await axios.post(transferUrl, requestObject, { headers });
 
-  const res = cryptojs.AES.decrypt(data, apiKey);
+  const result = cryptojs.AES.decrypt(data, apiKey);
 
-  return res;
+  return result;
 };
 
 module.exports = carbon;

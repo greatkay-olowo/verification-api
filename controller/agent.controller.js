@@ -174,17 +174,7 @@ exports.compelete_a_verification = (req, res) => {
     return res.status(400).json({ status: "failed", message: errors.array() });
   }
 
-  const {
-    status,
-    note,
-    long,
-    lang,
-    picture_1,
-    picture_2,
-    picture_3,
-    user_id,
-    completed_by,
-  } = req.body;
+  const { status, note, long, lang, user_id, completed_by } = req.body;
   const { id } = req.params;
   const date = moment().format("DD-MM-YYYY");
   Address.findOne({ user_id: user_id, _id: id })
@@ -193,9 +183,7 @@ exports.compelete_a_verification = (req, res) => {
       address.note = note;
       address.long = long;
       address.lang = lang;
-      address.picture_1 = picture_1;
-      address.picture_2 = picture_2;
-      address.picture_3 = picture_3;
+      address.picture = "picture";
       address.date_completed = date;
       address.completed_by = completed_by; //verification officer staff id
       address

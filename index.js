@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const logger = require("morgan");
 const compression = require("compression");
 const app = express();
+
 app.use(helmet());
 
 require("dotenv").config();
@@ -16,6 +17,8 @@ app.use(cors());
 app.use(compression());
 app.use(express.json());
 app.use(logger("combined"));
+
+app.use(express.static(__dirname + "/public"));
 
 // connect to the database
 const mongoDB = process.env.ATLAS_URI;
