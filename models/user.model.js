@@ -3,8 +3,7 @@ const nanoid = require("nanoid");
 
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema(
-  {
+const userSchema = new Schema({
     _id: { type: String, default: () => nanoid(10) },
     key: { type: String, required: true },
     companyName: { type: String, required: true, trim: true },
@@ -17,11 +16,9 @@ const userSchema = new Schema(
     credit_check_price: { type: Number, required: true },
     identity_price: { type: Number, required: true },
     address_price: { type: Number, required: true },
-  },
-  {
+}, {
     timestamps: true,
-  },
-);
+}, );
 
 const User = mongoose.model("User", userSchema);
 

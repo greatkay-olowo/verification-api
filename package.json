@@ -1,30 +1,32 @@
 {
-  "dependencies": {
-    "axios": "^0.20.0",
-    "bcryptjs": "^2.4.3",
-    "compression": "^1.7.4",
-    "cors": "^2.8.5",
-    "crypto-js": "^4.0.0",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "express-validator": "^6.6.1",
-    "helmet": "^4.1.1",
-    "moment": "^2.29.0",
-    "mongoose": "^5.10.7",
-    "morgan": "^1.10.0",
-    "multer": "^1.4.2",
-    "nanoid": "^3.1.15"
-  },
-  "scripts": {
-    "start": "nodemon index.js"
-  },
-  "engines": {
-    "node": ">6.9.4",
-    "npm": ">4.2.0"
-  },
-  "name": "verification-api",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "https://github.com/greatkay-olowo/verification-api.git",
-  "author": "greatkay-olowo <oluwakayode.alao@gmail.com>"
+    "dependencies": {
+        "axios": "^0.20.0",
+        "bcryptjs": "^2.4.3",
+        "compression": "^1.7.4",
+        "cors": "^2.8.5",
+        "crypto-js": "^4.0.0",
+        "dotenv": "^8.2.0",
+        "express": "^4.17.1",
+        "express-validator": "^6.6.1",
+        "helmet": "^4.1.1",
+        "jsdoc": "^3.6.6",
+        "moment": "^2.29.0",
+        "mongoose": "^5.10.7",
+        "morgan": "^1.10.0",
+        "multer": "^1.4.2",
+        "nanoid": "^3.1.15"
+    },
+    "scripts": {
+        "start": "nodemon index.js",
+        "doc": "jsdoc -c jsdoc.json"
+    },
+    "engines": {
+        "node": ">6.9.4",
+        "npm": ">4.2.0"
+    },
+    "name": "verification-api",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "https://github.com/greatkay-olowo/verification-api.git",
+    "author": "greatkay-olowo <oluwakayode.alao@gmail.com>"
 }
