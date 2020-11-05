@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const nanoid = require("nanoid");
+const mongoose = require('mongoose');
+const nanoid = require('nanoid');
 
 const Schema = mongoose.Schema;
 
@@ -11,11 +11,12 @@ const company_data_schema = new Schema({
     num_of_identity: { type: Number, required: true },
     num_of_address_ordered: { type: Number, required: true },
     num_of_address: { type: Number, required: true },
+    num_of_credit_check: { type: Number, required: true },
     account_balance_wallet: { type: Number, balancerequired: true },
 }, {
     timestamps: true,
 }, );
 
-const Company_Data = mongoose.model("company_data_schema", company_data_schema);
+const Company_Data = mongoose.model('company_data_schema', company_data_schema);
 
 module.exports = Company_Data;

@@ -6,6 +6,7 @@ const Analytics = require('../models/analytics.model');
 const Company_Data = require('../models/company_data.model');
 
 const Wallet = require('../utils/wallet_accounting.js');
+const get_product_price = require('../utils/get_product_price');
 
 exports.request_new_add_ver = (req, res) => {
     const errors = validationResult(req);
@@ -23,8 +24,9 @@ exports.request_new_add_ver = (req, res) => {
         state,
         inform_about_visit,
         note,
-        price,
     } = req.body;
+
+    const price = get_product_price.address(user_id);
 
     const newAddress = new Address({
         user_id,
@@ -54,18 +56,14 @@ exports.request_new_add_ver = (req, res) => {
         })
         .then(() => {
             //update address verification ordered count on client's profile
-            Analytics.find().then((data) => {
-                // @ts-ignore
+            Analytics.findOne({ user_id }).then((data) => {
                 data.num_of_address_ver_ordered += 1;
-                // @ts-ignore
                 data.save();
             });
 
             //update address verification ordered count on company's database
             Company_Data.find().then((data) => {
-                // @ts-ignore
                 data.num_of_address_ordered += 1;
-                // @ts-ignore
                 data.save();
             });
 

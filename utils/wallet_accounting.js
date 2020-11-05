@@ -23,7 +23,7 @@ exports.deduct_from_wallet = (user_id, amount, transaction_type) => {
             .then((company_data) => {
                 const previous_balance = user.wallet;
                 // check balance
-                if (previous_balance < 0 || previous_balance < amount) {
+                if (previous_balance < amount) {
                     res.status().json({
                         status: 'failed',
                         message: 'Insifficient fund in wallet. Please top up your account.',
@@ -90,6 +90,25 @@ exports.deduct_from_wallet = (user_id, amount, transaction_type) => {
                     account.num_of_identity_ver_completed += 1;
                     account.save();
                     data.num_of_identity += 1;
+                    data.save();
+                })
+                .catch((err) => {
+                    console.error(err); //substitute for error reporting software
+                    res.status(400).json({
+                        status: 'failed',
+                        message: 'Error while increamenting address verification number.',
+                    });
+                });
+        });
+    };
+
+    exports.add_count_to_credit_report_number = (user_id) => {
+        Analytics.findOne({ user_id }).then((account) => {
+            Company_Data.find()
+                .then((data) => {
+                    account.num_of_credit_check_completed += 1;
+                    account.save();
+                    data.num_of_credit_check += 1;
                     data.save();
                 })
                 .catch((err) => {
