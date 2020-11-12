@@ -17,7 +17,7 @@
         "nanoid": "^3.1.15"
     },
     "scripts": {
-        "start": "nodemon index.js",
+        "start": "yarn index.js",
         "doc": "jsdoc -c jsdoc.json"
     },
     "engines": {
