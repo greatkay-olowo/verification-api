@@ -20,6 +20,7 @@ export default function MyApp(props) {
 		<React.Fragment>
 			<Head>
 				<title> My page </title>{' '}
+				<link rel='icon' type='image/jpg' href='/Icon_only.png' />
 				<meta
 					name='viewport'
 					content='minimum-scale=1, initial-scale=1, width=device-width'

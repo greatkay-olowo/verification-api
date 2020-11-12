@@ -4,7 +4,7 @@ const Wallet = require('../utils/wallet_accounting');
 
 const identity_api_call = require('../utils/carbon');
 
-const get_product_price = require('../utils/get_product_price');
+const User = require('../models/user.model');
 
 exports.spool_credit_report = (req, res) => {
     const errors = validationResult(req);
@@ -35,12 +35,19 @@ exports.spool_credit_report = (req, res) => {
         identification_phone_numbers,
     };
     const { user_id } = req.headers;
-    const price = get_product_price.credit(user_id);
 
-    try {
-        const response = identity_api_call(requestObject);
-        Wallet.deduct_from_wallet(user_id, price, identification_type);
-        Wallet.add_count_to_credit_report_number(user_id);
-        res.status(200).json({ status: 'success', message: response });
-    } catch (err) {}
+    User.findById(user_id)
+        .then((user) => {
+            const price = user.address_price;
+
+            try {
+                const response = identity_api_call(requestObject);
+                Wallet.deduct_from_wallet(user_id, price, identification_type);
+                Wallet.add_count_to_credit_report_number(user_id);
+                res.status(200).json({ status: 'success', message: response });
+            } catch (err) {
+                console.log(err);
+            }
+        })
+        .catch((err) => console.log(err));
 };

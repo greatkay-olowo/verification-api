@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const nanoid = require('nanoid');
+const { nanoid } = require('nanoid');
 
 const Schema = mongoose.Schema;
 
@@ -21,11 +21,11 @@ const address_schema = new Schema({
     long: { type: Number, required: true },
     lang: { type: Number, required: true },
     date_requested: { type: Date, required: true },
-    date_completed: { type: Date, required: true },
-    completed_by: { type: String, required: true },
+    date_completed: { type: Date },
+    completed_by: { type: String },
     price: { type: Number, required: true },
 }, { timestamps: true }, );
 
-const Address = mongoose.model('address_schema', address_schema);
+const Address = mongoose.model('address', address_schema);
 
 module.exports = Address;

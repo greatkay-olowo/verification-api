@@ -1,11 +1,11 @@
 const Agent = require('../models/agent.model');
 
 const agent_availability = (req, res, next) => {
-    const { email } = req.body;
+    const { email } = req.headers;
 
     Agent.findOne({ email })
         .then((agent) => {
-            if (agent.available_for_work) {
+            if (agent.available_for_work === true) {
                 return next();
             } else {
                 return res.status(403).json({
@@ -14,8 +14,7 @@ const agent_availability = (req, res, next) => {
                 });
             }
         })
-        .catch();
-    return next(); //remove this to enable auth and uncomment above
+        .catch((err) => console.log(err));
 };
 
 module.exports = agent_availability;

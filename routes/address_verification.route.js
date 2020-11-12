@@ -10,7 +10,6 @@ const address = require('../controller/address.controller');
 // request a new address verification
 router.post(
     '/', [
-        body('user_id').isString().trim().escape(),
         body('first_name').isString().trim().escape(),
         body('last_name').isString().trim().escape(),
         body('phone').isInt().not().isEmpty().bail(),
@@ -26,17 +25,9 @@ router.post(
 );
 
 // get all address verification for a user
-router.get(
-    '/', [body('user_id').isString().not().isEmpty().trim().bail()],
-    auth.customer_auth,
-    address.get_a_user_verifications,
-);
+router.get('/', auth.customer_auth, address.get_a_user_verifications);
 
 // get a address verification for a user
-router.get(
-    '/:id', [body('user_id').isString().not().isEmpty().trim().bail()],
-    auth.customer_auth,
-    address.get_a_ver_for_a_user,
-);
+router.get('/:id', auth.customer_auth, address.get_a_ver_for_a_user);
 
 module.exports = router;

@@ -4,7 +4,9 @@ const moment = require('moment');
 
 const Agent = require('../models/agent.model');
 const Address = require('../models/address_verification.model');
-const Analytics = require('../models/analytics.model');
+const User = require('../models/agent.model');
+const Company_Data = require('../models/company_data.model');
+const Wallet = require('../utils/wallet_accounting');
 
 const image_upload = require('../utils/image_upload');
 
@@ -22,7 +24,8 @@ exports.create_agent_account = (req, res) => {
         first_name,
         last_name,
         tel,
-        address,
+        lga,
+        state,
         gender,
         bvn,
         acount_number,
@@ -33,10 +36,12 @@ exports.create_agent_account = (req, res) => {
 
     Agent.findOne({ email })
         .then((agent) => {
-            if (agent.length !== 0) {
-                res
-                    .status(401)
-                    .json({ status: 'failed', message: `${email} already taken.` });
+            if (agent !== null) {
+                console.log(agent);
+                res.status(401).json({
+                    status: 'failed',
+                    message: `staff email ${email} already taken.`,
+                });
             } else {
                 bcrypt.hash(password, saltRounds).then((hash) => {
                     const newAgent = new User({
@@ -45,16 +50,33 @@ exports.create_agent_account = (req, res) => {
                         first_name,
                         last_name,
                         tel,
-                        address,
+                        lga,
+                        state,
                         gender,
                         bvn,
                         acount_number,
                         account_name,
                         bank_name,
+                        available_for_work: false,
+                        address_verification_count: 0,
+                        address_verification_amount_due: 0,
+                        address_verification_amount_paid: 0,
                     });
                     newAgent
                         .save()
                         .then(() => {
+                            Company_Data.findOne()
+                                .then((data) => {
+                                    data.num_of_agents += 1;
+                                    data.save();
+                                })
+                                .catch((err) => {
+                                    console.log(err);
+                                    res.status(400).json({
+                                        status: 'failed',
+                                        message: 'failed to add agent count to company data.',
+                                    });
+                                });
                             res.status(202).json({ status: 'success', message: 'Agent registered' });
                         })
                         .catch((err) => {
@@ -77,39 +99,18 @@ exports.create_agent_account = (req, res) => {
 };
 
 exports.login = (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ status: 'failed', message: errors.array() });
-    }
-
-    let { email, password } = req.body;
+    let { email, password } = req.headers;
     email = email.toLowerCase();
 
     Agent.findOne({ email })
         .then((agent) => {
-            if (agent.length === 0) {
+            if (agent === null) {
                 res.status(404).json({ status: 'failed', message: 'Account not found.' });
             } else {
                 if (bcrypt.compare(password, agent.password)) {
                     res.status(202).json({
                         status: 'success',
-                        message: [
-                            agent.agent._id,
-                            agent.email,
-                            agent.first_name,
-                            agent.last_name,
-                            agent.tel,
-                            agent.address,
-                            agent.gender,
-                            agent.bvn,
-                            agent.acount_number,
-                            agent.account_name,
-                            agent.bank_name,
-                            agent.available_for_work,
-                            agent.address_verification_count,
-                            agent.address_verification_amount_due,
-                            agent.address_verification_amount_paid,
-                        ],
+                        message: { id: agent._id },
                     });
                 } else {
                     res.status(400).json({ status: 'failed', message: 'Login not correct.' });
@@ -144,9 +145,29 @@ exports.accept_business_verification = (req, res) => {
         });
 };
 
-exports.get_all_accepted_ver_by_an_agent = (res) => {
-    const { id } = body.params;
+exports.get_all_accepted_verification_by_an_agent = (req, res) => {
+    const { id } = req.params;
+
     Address.find({ agent_accepted: true, completed_by: id })
+        .then((addresses) =>
+            res.status(202).json({
+                status: 'success',
+                message: addresses,
+            }),
+        )
+        .catch((err) => {
+            console.error(err); //substitute for error reporting software
+            res.status(400).json({
+                status: 'failed',
+                message: `Cannot get verification completed.`,
+            });
+        });
+};
+
+exports.get_all_accepted_verification_by_all_agents = (req, res) => {
+    const { id } = req.params;
+
+    Address.find({ agent_accepted: true })
         .then((addresses) =>
             res.status(202).json({
                 status: 'success',
@@ -168,45 +189,45 @@ exports.compelete_a_verification = (req, res) => {
         return res.status(400).json({ status: 'failed', message: errors.array() });
     }
 
-    const { status, note, long, lang, user_id, completed_by } = req.body;
+    const { status, note, long, lang, user_id, completed_by, pictures } = req.body;
     const { id } = req.params;
     const date = moment().format('YYYY-MM-DD');
-    const images = image_upload.image_validation_and_upload;
-    Address.findOne({ user_id: user_id, _id: id })
+    // const images = image_upload.image_validation_and_upload;
+    let price = 3;
+
+    Address.findOne({ user_id: user_id })
         .then((address) => {
             // status can either be 'completed' or 'failed'
             address.status = status;
             address.note = note;
             address.long = long;
             address.lang = lang;
-            address.picture = images;
+            address.pictures = pictures;
             address.date_completed = date;
             address.completed_by = completed_by; //verification officer staff id
+            price = address.price;
+            address.markModified('pictures');
             address
                 .save()
-                .then(() => {
-                    Analytics.findOne({ user_id: user_id })
-                        .then((account) => {
-                            const charge = parseInt(account.address_verification_price);
-                            Wallet.deduct_from_wallet(user_id, charge, 'address verification', id);
-                            Wallet.add_count_to_address_verification_number(user_id);
-                            Agent.findById(completed_by)
-                                .then((agent) => {
-                                    agent.address_verification_done.push([date, verification_id, price]);
-                                })
-                                .catch();
-                        })
-                        .catch((err) => {
-                            console.error(err); //substitute for error reporting software
-                            res.status(400).json({
-                                status: 'failed',
-                                message: 'Error while trying to save verification.',
+                .then((address) => {
+                    const charge = price;
+
+                    Wallet.deduct_from_wallet(user_id, charge, 'address verification', id);
+
+                    Wallet.add_count_to_address_ver_num(user_id);
+
+                    Agent.findById(completed_by)
+                        .then((agent) => {
+                            agent.address_verification_done.push({ date, id, price });
+                            agent.address_verification_amount_due += charge;
+                            agent.markModified('address_verification_done');
+                            agent.save();
+                            res.status(202).json({
+                                status: 'success',
+                                message: address,
                             });
-                        });
-                    res.status(202).json({
-                        status: 'success',
-                        message: addresses,
-                    });
+                        })
+                        .catch((err) => console.log(err));
                 })
                 .catch((err) => {
                     console.error(err); //substitute for error reporting software
@@ -225,10 +246,13 @@ exports.compelete_a_verification = (req, res) => {
         });
 };
 
-exports.get_all_verification_in_a_location = (req, res) => {
+exports.get_all_verification_in_a_location_not_accptd_by_any_agent = (
+    req,
+    res,
+) => {
     const { lga, state } = req.params;
 
-    Address.find({ lga, state })
+    Address.find({ lga, state, agent_accepted: false })
         .then((addresses) =>
             res.status(202).json({
                 status: 'success',

@@ -45,11 +45,16 @@ const carbon = async(requestObject) => {
     };
 
     const transferUrl = `${baseUrl}/api/verify`;
-    const data = await axios.post(transferUrl, requestObject, { headers });
 
-    const result = cryptojs.AES.decrypt(data, apiKey);
+    try {
+        const data = await axios.post(transferUrl, requestObject, { headers });
 
-    return result;
+        const result = cryptojs.AES.decrypt(data, apiKey);
+
+        return result;
+    } catch (err) {
+        console.log(err);
+    }
 };
 
 module.exports = carbon;

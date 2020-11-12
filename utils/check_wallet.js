@@ -1,5 +1,5 @@
-const Analytics = require("../models/analytics.model");
-const User = require("../models/user.model");
+const Analytics = require('../models/analytics.model');
+const User = require('../models/user.model');
 
 exports.check_wallet_balance_for_address = (req, res, next) => {
     let price = 0;
@@ -7,25 +7,23 @@ exports.check_wallet_balance_for_address = (req, res, next) => {
 
     const { user_id } = req.headers;
 
-    User.find({ _id: user_id })
+    User.findById(user_id)
         .then((user) => {
-            price = parseInt(user.address_verification_price);
+            price = user.address_price;
+            Analytics.findOne({ user_id })
+                .then((user_analytics) => {
+                    wallet_balance = user_analytics.wallet;
+                    if (wallet_balance >= price) {
+                        return next();
+                    } else {
+                        res
+                            .status(402)
+                            .json({ status: 'failed', message: 'Insufficient banalce.' });
+                    }
+                })
+                .catch((err) => console.log(err));
         })
-        .catch();
-
-    Analytics.find({ _id: user_id })
-        .then((user) => {
-            wallet_balance = parseInt(user.wallet_balance);
-        })
-        .catch();
-
-    if (wallet_balance <= price && wallet_balance !== 0) {
-        next();
-    } else {
-        res
-            .status(402)
-            .json({ status: "failed", message: "Insufficient banalce." });
-    }
+        .catch((err) => console.log(err));
 };
 exports.check_wallet_balance_for_identity = () => {
     let price = 0;
@@ -33,25 +31,23 @@ exports.check_wallet_balance_for_identity = () => {
 
     const { user_id } = req.headers;
 
-    User.find({ _id: user_id })
+    User.findById(user_id)
         .then((user) => {
-            price = parseInt(user.identity_price);
+            price = user.identity_price;
+            Analytics.findOne({ user_id })
+                .then((user_analytics) => {
+                    wallet_balance = user_analytics.wallet;
+                    if (wallet_balance >= price) {
+                        next();
+                    } else {
+                        res
+                            .status(402)
+                            .json({ status: 'failed', message: 'Insufficient banalce.' });
+                    }
+                })
+                .catch((err) => console.log(err));
         })
-        .catch();
-
-    Analytics.find({ _id: user_id })
-        .then((user) => {
-            wallet_balance = parseInt(user.wallet_balance);
-        })
-        .catch();
-
-    if (wallet_balance <= price && wallet_balance !== 0) {
-        next();
-    } else {
-        res
-            .status(402)
-            .json({ status: "failed", message: "Insufficient banalce." });
-    }
+        .catch((err) => console.log(err));
 };
 exports.check_wallet_balance_for_credit_check = () => {
     let price = 0;
@@ -59,23 +55,21 @@ exports.check_wallet_balance_for_credit_check = () => {
 
     const { user_id } = req.headers;
 
-    User.find({ _id: user_id })
+    User.findById(user_id)
         .then((user) => {
-            price = parseInt(user.credit_check_price);
+            price = user.credit_check_price;
+            Analytics.findOne({ user_id })
+                .then((user_analytics) => {
+                    wallet_balance = user_analytics.wallet;
+                    if (wallet_balance >= price) {
+                        next();
+                    } else {
+                        res
+                            .status(402)
+                            .json({ status: 'failed', message: 'Insufficient banalce.' });
+                    }
+                })
+                .catch((err) => console.log(err));
         })
-        .catch();
-
-    Analytics.find({ _id: user_id })
-        .then((user) => {
-            wallet_balance = parseInt(user.wallet_balance);
-        })
-        .catch();
-
-    if (wallet_balance <= price && wallet_balance !== 0) {
-        next();
-    } else {
-        res
-            .status(402)
-            .json({ status: "failed", message: "Insufficient banalce." });
-    }
+        .catch((err) => console.log(err));
 };

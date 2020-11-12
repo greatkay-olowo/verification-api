@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const nanoid = require("nanoid");
+const mongoose = require('mongoose');
+const { nanoid } = require('nanoid');
 
 const Schema = mongoose.Schema;
 
@@ -20,6 +20,6 @@ const userSchema = new Schema({
     timestamps: true,
 }, );
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

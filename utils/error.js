@@ -1,7 +1,7 @@
-const Error = () => {
+exports.error = (err) => {
     console.error({ err });
     res.status(400).json({
-        status: "failed",
+        status: 'failed',
         message: `Profile cannot be updated.`,
     });
 };

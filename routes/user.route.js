@@ -14,8 +14,8 @@ router.post(
         body('email').isEmail().trim(),
         body('password').isString().isLength({ min: 8 }).trim(),
         body('companyName').isString().trim().escape(),
-        body('regNo').isString().trim().escape(),
-        body('tel').isString().trim().escape(),
+        body('regNo').isInt().trim().escape(),
+        body('tel').isInt().trim().escape(),
         body('address').isString().trim().escape(),
     ],
     user_controller.signup,
@@ -24,7 +24,6 @@ router.post(
 // Login
 router.post(
     '/login', [body('email').isEmail().trim(), body('password').isString().trim().escape()],
-    auth.customer_auth,
     user_controller.login,
 );
 

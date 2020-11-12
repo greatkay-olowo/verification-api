@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const nanoid = require("nanoid");
+const mongoose = require('mongoose');
+const { nanoid } = require('nanoid');
 
 const Schema = mongoose.Schema;
 
@@ -18,6 +18,6 @@ const analytics_schema = new Schema({
     timestamps: true,
 }, );
 
-const Analytics = mongoose.model("analytics_schema", analytics_schema);
+const Analytics = mongoose.model('Analytics', analytics_schema);
 
 module.exports = Analytics;

@@ -1,29 +1,29 @@
-const Analytics = require("../models/analytics.model");
-const Company_Data = require("../models/company_data.model");
-const User = require("../models/user.model");
+const Analytics = require('../models/analytics.model');
+const Company_Data = require('../models/company_data.model');
+const User = require('../models/user.model');
 
-const bcrypt = require("bcryptjs");
-const nanoid = require("nanoid");
-const { validationResult } = require("express-validator");
+const bcrypt = require('bcryptjs');
+const { nanoid } = require('nanoid');
+const { validationResult } = require('express-validator');
 
 const saltRounds = 10;
 
 exports.signup = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ status: "failed", message: errors.array() });
+        return res.status(400).json({ status: 'failed', message: errors.array() });
     }
 
     let { email, password, companyName, regNo, tel, address } = req.body;
     email = email.toLowerCase();
     regNo = parseInt(regNo);
 
-    User.find({ email })
+    User.findOne({ email })
         .then((user) => {
-            if (user.length !== 0) {
+            if (user !== null) {
                 res
                     .status(401)
-                    .json({ status: "failed", message: `${email} already taken.` });
+                    .json({ status: 'failed', message: ` User ${email} already taken.` });
             } else {
                 bcrypt
                     .hash(password, saltRounds)
@@ -37,9 +37,10 @@ exports.signup = (req, res) => {
                             key,
                             tel,
                             address,
-                            type: "customer",
-                            identity_price: "0",
-                            address_price: "0",
+                            type: 'customer',
+                            identity_price: 0,
+                            address_price: 0,
+                            credit_check_price: 0,
                         });
                         newUser
                             .save()
@@ -48,43 +49,44 @@ exports.signup = (req, res) => {
                                     const newAnalytics = new Analytics({
                                         user_id: user._id,
                                         transaction_history: [],
-                                        number_of_identity_verification: "",
-                                        identity_verification_price: "",
-                                        address_verification_price: "",
-                                        wallet: "0",
+                                        num_of_identity_ver_completed: 0,
+                                        num_of_address_ver_ordered: 0,
+                                        num_of_address_ver_completed: 0,
+                                        num_of_credit_check_completed: 0,
+                                        wallet: 0,
                                     });
                                     newAnalytics.save();
-                                    Company_Data.find()
+
+                                    Company_Data.findOne()
                                         .then((data) => {
                                             data.number_of_customers += 1;
                                             data.save();
+                                            res
+                                                .status(202)
+                                                .json({ status: 'success', message: 'user registered' });
                                         })
                                         .catch((err) => {
                                             console.error(err);
                                             res.status(400).json({
-                                                status: "failed",
-                                                message: "User registration not successful. ",
+                                                status: 'failed',
+                                                message: 'User registration not successful. ',
                                             });
                                         });
                                 });
-
-                                res
-                                    .status(202)
-                                    .json({ status: "success", message: "user registered" });
                             })
                             .catch((err) => {
                                 console.error(err);
                                 res.status(400).json({
-                                    status: "failed",
-                                    message: "User registration not successful. ",
+                                    status: 'failed',
+                                    message: 'User registration not successful. ',
                                 });
                             });
                     })
                     .catch((err) => {
                         console.error(err);
                         res.status(400).json({
-                            status: "failed",
-                            message: "User registration not successful. ",
+                            status: 'failed',
+                            message: 'User registration not successful. ',
                         });
                     });
             }
@@ -92,8 +94,8 @@ exports.signup = (req, res) => {
         .catch((err) => {
             console.error(err);
             res.status(400).json({
-                status: "failed",
-                message: "User registration not successful. ",
+                status: 'failed',
+                message: 'User registration not successful. ',
             });
         });
 };
@@ -101,7 +103,7 @@ exports.signup = (req, res) => {
 exports.login = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ status: "failed", message: errors.array() });
+        return res.status(400).json({ status: 'failed', message: errors.array() });
     }
 
     let { email, password } = req.body;
@@ -109,51 +111,48 @@ exports.login = (req, res) => {
 
     User.findOne({ email })
         .then((result) => {
-            if (result.length === 0) {
-                res
-                    .status(404)
-                    .json({ status: "failed", message: "Account not found." });
+            if (result === null) {
+                res.status(404).json({ status: 'failed', message: 'Account not found.' });
             } else {
                 if (bcrypt.compare(password, result.password)) {
-                    Analytics.findOne({ _id: result._id })
+                    Analytics.findOne({ user_id: result._id })
                         .then((analytic) => {
                             res.status(202).json({
-                                status: "success",
-                                message: [
-                                    analytic.user_id,
-                                    result.key,
-                                    result.companyName,
-                                    result.regNo,
-                                    result.email,
-                                    result.tel,
-                                    analytic.number_of_identity_verification_ordered,
-                                    analytic.number_of_identity_verification_completed,
-                                    analytic.number_of_address_verification_ordered,
-                                    analytic.number_of_address_verification_completed,
-                                    analytic.wallet,
-                                ],
+                                status: 'success',
+                                message: {
+                                    user_id: analytic.user_id,
+                                    key: result.key,
+                                    companyName: result.companyName,
+                                    regNo: result.regNo,
+                                    email: result.email,
+                                    tel: result.tel,
+                                    num_of_identity_ver_completed: analytic.num_of_identity_ver_completed,
+                                    num_of_address_ver_ordered: analytic.num_of_address_ver_ordered,
+                                    num_of_address_ver_completed: analytic.number_of_address_verification_ordered,
+                                    num_of_credit_check_completed: analytic.num_of_credit_check_completed,
+                                    credit_check_price: result.credit_check_price,
+                                    identity_price: result.identity_price,
+                                    address_price: result.address_price,
+                                    wallet: analytic.wallet,
+                                },
                             });
                         })
-                        .catch();
+                        .catch((err) => console.log(err));
                 } else {
-                    res
-                        .status(400)
-                        .json({ status: "failed", message: "Login not correct." });
+                    res.status(400).json({ status: 'failed', message: 'Login not correct.' });
                 }
             }
         })
         .catch((err) => {
             console.log(err);
-            res
-                .status(400)
-                .json({ status: "failed", message: `Login not successful.` });
+            res.status(400).json({ status: 'failed', message: `Login not successful.` });
         });
 };
 
 exports.changepassword = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ status: "failed", message: errors.array() });
+        return res.status(400).json({ status: 'failed', message: errors.array() });
     }
     const { password, email } = req.body;
     User.findOne({ email })
@@ -164,12 +163,12 @@ exports.changepassword = (req, res) => {
                 .then(() =>
                     res
                     .status(202)
-                    .json({ status: "success", message: "User update successfull" }),
+                    .json({ status: 'success', message: 'User update successfull' }),
                 )
                 .catch((err) => {
                     console.error({ err });
                     res.status(400).json({
-                        status: "failed",
+                        status: 'failed',
                         message: `Profile cannot be updated.`,
                     });
                 });
@@ -177,7 +176,7 @@ exports.changepassword = (req, res) => {
         .catch((err) => {
             console.error(err);
             res.status(400).json({
-                status: "failed",
+                status: 'failed',
                 message: `Password change not successful.`,
             });
         });
@@ -191,13 +190,13 @@ exports.generate_key = (req, res) => {
         user
             .save()
             .then(() => {
-                res.status(202).json({ status: "success", message: `${key}` });
+                res.status(202).json({ status: 'success', message: `${key}` });
             })
             .catch((err) => {
                 console.error(err);
                 res.status(400).json({
-                    status: "failed",
-                    message: "User registration not successful. ",
+                    status: 'failed',
+                    message: 'User registration not successful. ',
                 });
             });
     });

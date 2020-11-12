@@ -3,13 +3,10 @@ const helmet = require('helmet');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const logger = require('morgan');
-const compression = require('compression');
 const app = express();
-
 app.use(helmet());
-
 require('dotenv').config();
-
+const compression = require('compression');
 const port = process.env.PORT || 5000;
 
 // setup middleware

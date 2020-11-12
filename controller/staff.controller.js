@@ -1,3 +1,4 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user.model');
 const Address = require('../models/address_verification.model');
 const Staff = require('../models/staff.model');
@@ -5,18 +6,20 @@ const Staff = require('../models/staff.model');
 const { validationResult } = require('express-validator');
 const Agent = require('../models/agent.model');
 
-exports.signup = () => {
+const saltRounds = 10;
+
+exports.signup = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ status: 'failed', message: errors.array() });
     }
 
-    let { email, password } = req.body;
+    let { email, password, right } = req.body;
     email = email.toLowerCase();
 
     Staff.findOne({ email })
         .then((staff) => {
-            if (staff.length !== 0) {
+            if (staff !== null) {
                 res
                     .status(401)
                     .json({ status: 'failed', message: `${email} already taken.` });
@@ -25,6 +28,7 @@ exports.signup = () => {
                     const newStaff = new Staff({
                         email,
                         password: hash,
+                        right,
                     });
                     newStaff
                         .save()
@@ -45,12 +49,12 @@ exports.signup = () => {
             console.error(err);
             res.status(400).json({
                 status: 'failed',
-                message: 'Agent registration not successful. ',
+                message: 'Staff registration not successful. ',
             });
         });
 };
 
-exports.login = () => {
+exports.login = (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ status: 'failed', message: errors.array() });
@@ -80,7 +84,7 @@ exports.get_all_customers = (req, res) => {
         .then((customers) =>
             res.status(200).json({ status: 'success', message: customers }),
         )
-        .catch();
+        .catch((err) => console.log(err));
 };
 
 exports.get_a_customer = (req, res) => {
@@ -89,7 +93,7 @@ exports.get_a_customer = (req, res) => {
         .then((customers) =>
             res.status(200).json({ status: 'success', message: customers }),
         )
-        .catch();
+        .catch((err) => console.log(err));
 };
 
 exports.update_customer_profile = (req, res) => {
@@ -142,10 +146,39 @@ exports.update_customer_profile = (req, res) => {
         });
 };
 
-exports.get_all_prof_ver = (req, res) => {
-    const { identity_id } = req.params;
+exports.get_all_verification = (req, res) => {
+    Address.find()
+        .then((addresses) => {
+            res.status(202).json({ status: 'success', message: addresses });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(400).json({
+                status: 'failed',
+                messgae: 'All verification cannot be gotten at the moment.',
+            });
+        });
+};
 
-    Address.find({ identity_id: identity_id })
+exports.get_one_verification = (req, res) => {
+    const { id } = req.params;
+    Address.findById(id)
+        .then((address) => {
+            res.status(202).json({ status: 'success', message: address });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(400).json({
+                status: 'failed',
+                messgae: 'All verification cannot be gotten at the moment.',
+            });
+        });
+};
+
+exports.get_all_add_ver_for_a_user = (req, res) => {
+    const { user_id } = req.params;
+
+    Address.find({ user_id: user_id })
         .then((addresses) =>
             res.status(202).json({
                 status: 'success',
@@ -161,12 +194,33 @@ exports.get_all_prof_ver = (req, res) => {
         });
 };
 
-exports.get_all_ver_done_by_agent = (req, res) => {
-    const { id } = req.params;
+exports.get_all_verification_accepted_by_an_agent = (req, res) => {
+    const { agent_id } = req.params;
 
-    Address.find({ completed_by: id })
+    Address.find({ completed_by: agent_id, agent_accepted: true })
+        .then((addresses) => {
+            res.status(202).json({
+                status: 'success',
+                message: addresses,
+            });
+        })
+        .catch((err) => {
+            console.error(err); //substitute for error reporting software
+            res.status(400).json({
+                status: 'failed',
+                message: `Cannot get verification completed by ${id}.`,
+            });
+        });
+};
+
+/////////////////////
+exports.get_all_ver_done_by_agent = (req, res) => {
+    const { agent_id } = req.params;
+
+    Address.find({ completed_by: agent_id })
         .then((addresses) => {
             const list = addresses.filter((address) => address.status !== 'Pending');
+
             res.status(202).json({
                 status: 'success',
                 message: list,
@@ -200,10 +254,17 @@ exports.get_all_verification_in_a_location = (req, res) => {
         });
 };
 
-exports.get_all_verification_agents = (res) => {
+exports.get_all_verification_agents = (req, res) => {
     Agent.find()
         .then((agents) =>
             res.status(200).json({ status: 'success', message: agents }),
         )
-        .catch();
+        .catch((err) => console.log(err));
+};
+
+exports.get_a_verification_agent = (req, res) => {
+    const { agent_id } = req.params;
+    Agent.findById(agent_id)
+        .then((agent) => res.status(200).json({ status: 'success', message: agent }))
+        .catch((err) => console.log(err));
 };
