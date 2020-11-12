@@ -15,18 +15,16 @@ app.use(compression());
 app.use(express.json());
 app.use(logger('combined'));
 
-app.use(express.static(__dirname + '/public'));
-
 // connect to the database
 const mongoDB = process.env.ATLAS_URI;
 mongoose
-    .connect(mongoDB, {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        useFindAndModify: false,
-    })
-    .then(() => console.log('Connected to Database'))
-    .catch((err) => console.error('An error has occured', err));
+	.connect(mongoDB, {
+		useUnifiedTopology: true,
+		useNewUrlParser: true,
+		useFindAndModify: false,
+	})
+	.then(() => console.log('Connected to Database'))
+	.catch((err) => console.error('An error has occured', err));
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
@@ -48,9 +46,9 @@ app.use('/api/v1/address/', address_verification_router);
 
 // testing
 app.get('/', (req, res) => {
-    res.send('Welcome to this api.');
+	res.send('Welcome to this api.');
 });
 
 app.listen(port, () => {
-    console.log(`Server is running at port ${port}`);
+	console.log(`Server is running at port ${port}`);
 });
